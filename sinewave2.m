@@ -11,12 +11,19 @@ trans_packet = CreateTransmissionPacket(TypeConst.period, period_us_data);
 fwrite(s, trans_packet);
 pause(1);
 
-% Data is an array with sine wave data for every speaker position (12 in
-% total), with a specified amplitude. 
-data = CreateSineArray(10000);
+% Setup some amplitude values
+amplitude = zeros(12);
+amplitude(1) = 10000;
+for i = 2:12
+    amplitude(i) = amplitude(i - 1) + 500;
+end
 
-% Temp edit to test just one speaker - disable DAC-B-1
-data(2:12, :) = 0;
+% Data is an array with sine wave data for every speaker position (12 in
+% total), with a specified amplitude.
+data = CreateSineArray(amplitude);
+
+% Temp edit to test just one speaker (or more) by zeroing array values
+%data(2:12, :) = 0;
 %data(12, :) = 0;
 
 ch_A_data = CreateSerialArray(data(1, :), data(5, :), data(9, :));

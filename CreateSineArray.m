@@ -1,48 +1,29 @@
-function sineArray = CreateSineArray(amplitude)
+function sineArray = CreateSineArray(amp)
 % CREATESINEARRAY 2D sine wave array
 % Create a 2D array with 12, 24 data point sine waves.
 %
-% Amplitude: Amplitude of all the sine waves, from 0 to 2^16.
-%
+% Inputs
+%   amp: Amplitude of all the sine waves, from 0 to 2^16.
+% Outputs
+%   sineArray: 12 sinewaves with phase change.
     ts=1/24;
     T=1;
     f=1;
+    w = 2*pi*f;
     t=0:ts:T;
-    y1=amplitude*sin(2*pi*f*t)+amplitude;
-    % Delete last element in array which is a repeat of the first element.
-    y1(end) =[];
     t(end) =[];
     
-    % Create the offset sine waves from first set of points.
-    sineArray = y1;
-
+    % Setup plot
     clf
-    hold on
- %   f1 = figure('Name', 'All Data Points');
-    figure(1);
-    title('Sine Array Datapoints');
-    xlabel('Sample number');
-    ylabel('16-bit DAC value');
-   
-    %stairs(t, y1);
+    hold on    
+    xlim([1 24]);
     
-    for i = 2:2:22
-        y2 = circshift(y1, i);
-        sineArray = [sineArray; y2];
-    end    
+    % Preallocate array
+    sineArray = zeros(12,24);
     
-    stairs(sineArray);    
-%     legend({'offset = 0', ...
-%         'offset = 2', ...
-%         'offset = 4', ...
-%         'offset = 6', ...
-%         'offset = 8', ...
-%         'offset = 10', ...
-%         'offset = 12', ...
-%         'offset = 14', ...
-%         'offset = 16', ...
-%         'offset = 18', ...
-%         'offset = 20', ...
-%         'offset = 22'});
-
+    for i = 1:12
+        phase_rad = (pi/12)*(i - 1);
+        sineArray(i, 1:24) = amp(i) * sin(w*t + phase_rad) + amp(i);
+        plot(sineArray(i, 1:24));
+    end  
 end
