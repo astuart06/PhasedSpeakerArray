@@ -2,50 +2,71 @@
 delete(instrfindall);
 clear all;
 % Setup serial port
-s = serial('COM16', 'BaudRate', 115200);
+s = serial('COM17', 'BaudRate', 115200);
 fopen(s);
 
+% Disable the timer interrupts
+trans_packet = CreateTransmissionPacket(TypeConst.timer_state, 0);
+fwrite(s, trans_packet);
+pause(1);
+
 % Update the sample period
-period_us_data = UpdateSamplePeriod(200);
+period_us_data = UpdateSamplePeriod(300);
 trans_packet = CreateTransmissionPacket(TypeConst.period, period_us_data);
 fwrite(s, trans_packet);
-pause(1);
+pause(0.2);
 
-% Setup some amplitude values
-amplitude = zeros(12);
-amplitude(1) = 10000;
-for i = 2:12
-    amplitude(i) = amplitude(i - 1) + 500;
-end
+% Update number of DACs
+number_of_dacs = 6;
+trans_packet = CreateTransmissionPacket(TypeConst.dac_count, number_of_dacs);
+fwrite(s, trans_packet);
+pause(0.2);
 
-% Data is an array with sine wave data for every speaker position (12 in
-% total), with a specified amplitude.
-data = CreateSineArray(amplitude);
+% Create test data
+set_points = [-1 1 1 1 1 1 0 0 0 0 0 0];
+set_points = VoltageTo16bitSetpoint(set_points);
+test_data = CreateSerialArray(set_points);
 
-% Temp edit to test just one speaker (or more) by zeroing array values
-%data(2:12, :) = 0;
-%data(12, :) = 0;
+zero_set_points = [0 0 0 0 0 0 0 0 0 0 0 0];
+zero_set_points = VoltageTo16bitSetpoint(zero_set_points);
+zero_test_data = CreateSerialArray(zero_set_points);
 
-ch_A_data = CreateSerialArray(data(1, :), data(5, :), data(9, :));
-ch_B_data = CreateSerialArray(data(2, :), data(6, :), data(10, :));
-ch_C_data = CreateSerialArray(data(3, :), data(7, :), data(11, :));
-ch_D_data = CreateSerialArray(data(4, :), data(8, :), data(12, :));
-
-% Transmit Channel A
-trans_packet = CreateTransmissionPacket(TypeConst.ch_A, ch_A_data);
+% =========================================================================
+% Transmit Test Data
+% Channel A
+trans_packet = CreateTransmissionPacket(TypeConst.ch_A, zero_test_data);
+fwrite(s, trans_packet);
+pause(0.2);
+% Channel B
+trans_packet = CreateTransmissionPacket(TypeConst.ch_B, zero_test_data);
+fwrite(s, trans_packet);
+pause(0.2);
+% Channel C
+trans_packet = CreateTransmissionPacket(TypeConst.ch_C, zero_test_data);
+fwrite(s, trans_packet);
+pause(0.2);
+% Channel D
+trans_packet = CreateTransmissionPacket(TypeConst.ch_D, test_data);
+fwrite(s, trans_packet);
+pause(0.2);
+% =========================================================================
+% Enable the timer interrupts
+trans_packet = CreateTransmissionPacket(TypeConst.timer_state, 1);
 fwrite(s, trans_packet);
 pause(1);
 
-% Transmit Channel B
- trans_packet = CreateTransmissionPacket(TypeConst.ch_B, ch_B_data);
- fwrite(s, trans_packet);
- pause(1);
+% Disable the timer interrupts
+% trans_packet = CreateTransmissionPacket(TypeConst.timer_state, 0);
+% fwrite(s, trans_packet);
 
- % Transmit Channel C
- trans_packet = CreateTransmissionPacket(TypeConst.ch_C, ch_C_data);
- fwrite(s, trans_packet);
- pause(1);
-
- % Transmit Channel D
- trans_packet = CreateTransmissionPacket(TypeConst.ch_D, ch_D_data);
- fwrite(s, trans_packet);
+% trans_packet = CreateTransmissionPacket(TypeConst.ch_B, test_data);
+% fwrite(s, trans_packet);
+% pause(1);
+% 
+% trans_packet = CreateTransmissionPacket(TypeConst.ch_C, test_data);
+% fwrite(s, trans_packet);
+% pause(1);
+% 
+% trans_packet = CreateTransmissionPacket(TypeConst.ch_D, test_data);
+% fwrite(s, trans_packet);
+% pause(1);

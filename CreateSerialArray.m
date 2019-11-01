@@ -1,14 +1,14 @@
-function serialArray = CreateSerialArray(y1, y2, y3)
+function serialArray = CreateSerialArray(y)
 % CREATESERIALARRAY 1D array sine array ready for transmission
-% Convert each datapoint into MSB and LSB hex chars ready for
-% transmission to the ESP32
+% Convert each datapoint into MSB and LSB hex chars. Then convert back
+% to a decimal number ready for transmission to the ESP32. The datapoints
+% are values between 0 and 65535 (2^16) which set the output of the DAC.
 %
-% y1,y2,y3 - 1D arrays contaning 24 datapoints.
+% y - 1D array contaning the datapoints.
 %
-    z = horzcat(y1, y2, y3);
 
     % Round first then convert to hex characters.
-    r1 = round(z);
+    r1 = round(y);
     h1 = dec2hex(r1, 4);
 
     % Split each 16-bit char into 2, 8-bit chars then convert to decimal.

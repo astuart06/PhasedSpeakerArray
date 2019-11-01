@@ -22,7 +22,7 @@ function sineArray = CreateSineArray(amp)
     sineArray = zeros(12,24);
     
     for i = 1:12
-        phase_rad = (pi/12)*(i - 1);
+        phase_rad = (2*pi/12)*(i - 1);
         sineArray(i, 1:24) = amp(i) * sin(w*t + phase_rad) + amp(i);
         plot(sineArray(i, 1:24));
     end  

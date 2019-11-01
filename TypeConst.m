@@ -6,7 +6,9 @@ classdef TypeConst
         ch_B = '12';
         ch_C = '14';
         ch_D = '18';
-        delimiter = 'e';
         period = '21';
+        dac_count = '22';
+        timer_state = '23';
+        delimiter = 'e';
     end
 end
